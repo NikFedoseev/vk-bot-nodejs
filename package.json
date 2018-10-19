@@ -1,0 +1,23 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "cheerio": "^1.0.0-rc.2",
+    "dotenv": "^6.1.0",
+    "express": "^4.16.4",
+    "iconv": "^2.3.1",
+    "needle": "^2.2.4",
+    "querystring": "^0.2.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
