@@ -14,27 +14,19 @@ module.exports = async function (command, userID) {
     if (user) {
         state = user.state;
         var group = user.group_number.toUpperCase();
-        console.log(group);
-        console.log('state', user.state);
+        console.log('GROUP', group);
     }
 
     switch (state[state.length - 1]) {
         case 'initial':
-            if (userMessage == 'расписание' ) {
-                if (user) {
-                    state.push('schedule')
-                    await users.update(
-                        {user_id: userID},
-                        {state: state}
-                    )
-                }
-                else {
-                    state.push('schedule');
-                }
-                payload.message = 'Выберите тип расписания(тупо звучит, надо переделать)';
+            if (userMessage == 'расписание' && group ) {
+                state.push('schedule')
+                await users.update(
+                    {user_id: userID},
+                    {state: state}
+                )
+                payload.message = 'Выберите тип расписания из предложенных ниже в клавиатуре или введите одну из комманд самостаятельно: <br>Сегодня <br>Завтра <br>На неделю <br>На следующую неделю <br>Назад (чтобы вернутсья в главное меню) ';
                 payload.keyboard = scheduleKeyboard();
-                
-                //state.push('schedule');
             } else if (userMessage == 'настройки') {
                 if (user) {
                     state.push('settings');
@@ -46,25 +38,22 @@ module.exports = async function (command, userID) {
                 else {
                     state.push('settings');
                 }
-                payload.message = '*тут будут настройки*';
+                payload.message = 'Меню настроек.<br>Здесь указать или зименить группу, для этого введите группу в формате: М4О-104М-18 или посмотреть какая группа установлена текущей, для этого введите группа';
                 payload.keyboard = settingsKeyboard();
-               
-                //
             } else if (userMessage == 'карта') {
-                payload.message = '*тут будет карта*';
+                payload.message = '*тут скоро можно будет построить маршрут до корпуса (в основном для первокурсников полезно)*';
                 payload.attachment = sendMap();
             } else if (userMessage == 'об авторах') {
                 payload.message = '*тут будет об авторах*';
                 //state.push('authors');
             } else {
-                payload.message = 'введите команду 2'
+                payload.message = 'Введена неправильная команда, или вы пока не ввели группу для того чтобы пользоваться расписанием.'
             }
             break;
         case 'schedule':
-            if (userMessage == 'сегодня' && group) {
+            if (userMessage == 'сегодня') {
                 let schedule = await parser(`${group}`, 'today');
                 let lessons = '';
-                //console.log(schedule);
                 if (schedule) {
                     schedule.lessons.forEach(el => {
                         lessons += `&#128344; ${el.time} - ${el.type}<br>&#128214; ${el.title}<br>&#127891; ${el.lecturer}<br>&#127970; ${el.location}<br><br>`;
@@ -75,7 +64,6 @@ module.exports = async function (command, userID) {
                     payload.message = 'Пар сегодня нет';
                     return payload
                 }
-
             } else if (userMessage == 'завтра') {
                 let schedule = await parser(`${group}`, 'tomorrow');
                 let lessons = '';
@@ -119,17 +107,12 @@ module.exports = async function (command, userID) {
                 return payload
 
             } else if (userMessage == 'назад') {
-                if (user) {
-                    state.pop()
-                    await users.update(
-                        {user_id: userID},
-                        {state: state}
-                    )
-                }
-                else {
-                    state.pop();
-                }
-                payload.message = 'Главное меню(тупо звучит, надо переделать)';
+                state.pop()
+                await users.update(
+                    {user_id: userID},
+                    {state: state}
+                )
+                payload.message = 'Главное меню.<br>Выберите команду из предложенных ниже в клавиатуре или введите одну из комманд самостоятельно:<br>Расписание <br>Настройки <br>Карта';
                 payload.keyboard = initialKeyboard();
                 
             } else {
@@ -155,7 +138,7 @@ module.exports = async function (command, userID) {
                 else {
                     state.pop();
                 }
-                payload.message = '*тут назад*';
+                payload.message = 'Главное меню.<br>Выберите команду из предложенных ниже в клавиатуре или введите одну из комманд самостоятельно:<br>Расписание <br>Настройки <br>Карта';
                 payload.keyboard = initialKeyboard();
                 
             } else {
@@ -182,6 +165,12 @@ module.exports = async function (command, userID) {
             break;
     }
 
+    /*Небольшая пасхалка*/
+    if (userMessage == 'маи это я!') {
+        payload.message = 'МАИ ЭТО МЫ!<br>МАИ ЭТО ЛУЧШИЕ ЛЮДИ СТРАНЫ!';
+        payload.attachment = 'photo-172453892_456239019';
+    }
+    /*==================*/
 
     return payload;
 }
