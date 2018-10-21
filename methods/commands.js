@@ -3,10 +3,12 @@ const sendMap = require('./sendMap');
 const scheduleKeyboard = require('./scheduleKeyboard');
 const initialKeyboard = require('./initialKeyboard');
 const settingsKeyboard = require('./settingsKeyboard');
+const mapKeyboard = require ('./mapKeyboard');
 const users = require ('../models/users');
 var state = ['initial'];
 
-module.exports = async function (command, userID) {
+module.exports = async function (command, userID, coordinates) {
+    console.log('COORDINATES', coordinates);
     const payload = {};
     const userMessage = command.toLowerCase();
     const user = await users.findOne({"user_id": `${userID}`});
@@ -41,8 +43,19 @@ module.exports = async function (command, userID) {
                 payload.message = 'Меню настроек.<br>Здесь указать или зименить группу, для этого введите группу в формате: М4О-104М-18 или посмотреть какая группа установлена текущей, для этого введите группа';
                 payload.keyboard = settingsKeyboard();
             } else if (userMessage == 'карта') {
-                payload.message = '*тут скоро можно будет построить маршрут до корпуса (в основном для первокурсников полезно)*';
-                payload.attachment = sendMap();
+                if (user) {
+                    state.push('map');
+                    await users.update(
+                        {user_id: userID},
+                        {state: state}
+                    )
+                }
+                else {
+                    state.push('map');
+                }
+                payload.message = 'Для того чтобы построить маршрут до корпуса прикрепите ваше местоположение и нужный вам корпус (в формате: 24Б, ГАК, 10 и тд) в одном сообщении. <br>Для того чтобы вернуться в главное меню введите "назад"';
+                payload.keyboard = mapKeyboard();
+                //payload.message = sendMap();
             } else if (userMessage == 'об авторах') {
                 payload.message = '*тут будет об авторах*';
                 //state.push('authors');
@@ -117,6 +130,29 @@ module.exports = async function (command, userID) {
                 
             } else {
                 payload.message = 'введите команду 1';
+            }
+            break;
+        case 'map':
+            console.log('USER MESSAGE',userMessage);
+            console.log('COORDINATES', coordinates);
+            if(coordinates && userMessage) {
+                payload.message = sendMap(coordinates, userMessage);
+            }
+            else if (userMessage == 'назад') {
+                if (user) {
+                    state.pop();
+                    await users.update(
+                        {user_id: userID},
+                        {state: state}
+                    )  
+                }
+                else {
+                    state.pop();
+                }
+                payload.message = 'Main menu';
+            }
+            else {
+                payload.message = 'Отправьте вашу геопозицию';
             }
             break;
         case 'settings':
