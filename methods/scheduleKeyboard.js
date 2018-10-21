@@ -1,40 +1,42 @@
 module.exports = () => {
-    return { 
-        "one_time": false, 
-        "buttons": [ 
-          
+    return {
+        "one_time": false,
+        "buttons": [
+
             [{
-                "action": {
-                    "type": "text",
-                    "payload": "{\"button\": \"1\"}",
-                    "label": "Сегодня"
+                    "action": {
+                        "type": "text",
+                        "payload": "{\"button\": \"1\"}",
+                        "label": "Сегодня"
+                    },
+                    "color": "positive"
                 },
-                "color": "positive"
-            },
-            {
-                "action": {
-                    "type": "text",
-                    "payload": "{\"button\": \"1\"}",
-                    "label": "Завтра"
-                },
-                "color": "positive"
-            }],
+                {
+                    "action": {
+                        "type": "text",
+                        "payload": "{\"button\": \"1\"}",
+                        "label": "Завтра"
+                    },
+                    "color": "positive"
+                }
+            ],
             [{
-                "action": {
-                    "type": "text",
-                    "payload": "{\"button\": \"1\"}",
-                    "label": "На неделю"
+                    "action": {
+                        "type": "text",
+                        "payload": "{\"button\": \"1\"}",
+                        "label": "На неделю"
+                    },
+                    "color": "primary"
                 },
-                "color": "primary"
-            },
-            {
-                "action": {
-                    "type": "text",
-                    "payload": "{\"button\": \"1\"}",
-                    "label": "На следующую неделю"
-                },
-                "color": "primary"
-            }],
+                {
+                    "action": {
+                        "type": "text",
+                        "payload": "{\"button\": \"1\"}",
+                        "label": "На следующую неделю"
+                    },
+                    "color": "primary"
+                }
+            ],
             [{
                 "action": {
                     "type": "text",
@@ -44,5 +46,5 @@ module.exports = () => {
                 "color": "default"
             }]
         ]
-      } ;
+    };
 }

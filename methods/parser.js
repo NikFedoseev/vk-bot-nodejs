@@ -1,6 +1,6 @@
-const needle = require ('needle');
-const qs = require ('querystring');
-const cheerio = require ('cheerio');
+const needle = require('needle');
+const qs = require('querystring');
+const cheerio = require('cheerio');
 
 /*let schedule = [
     {
@@ -15,7 +15,7 @@ const cheerio = require ('cheerio');
                 location: ''
             },
             {
-                time: 'b',
+                time: 'b',  
                 type: '',
                 title: '',
                 lecturer: '',
@@ -26,26 +26,28 @@ const cheerio = require ('cheerio');
 ]*/
 
 module.exports = (group, option) => {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         const date = new Date;
         const day = date.getDate();
-        const month = date.getMonth()+1;
+        const month = date.getMonth() + 1;
         const year = date.getFullYear();
-        const nDate = new Date(year, month-1, day+1);
+        const nDate = new Date(year, month - 1, day + 1);
         const nDay = nDate.getDate();
-        const nMonth = nDate.getMonth()+1;
+        const nMonth = nDate.getMonth() + 1;
         const currentDate = `${day}.${month}`;
         const nextDate = `${nDay}.${nMonth}`;
-        console.log(currentDate);
-        console.log(nextDate);
-        const tarGroup = qs.stringify({group});
+        //console.log(currentDate);
+        //console.log(nextDate);
+        const tarGroup = qs.stringify({
+            group
+        });
         const URL = `https://mai.ru/education/schedule/detail.php?${tarGroup}`;
-        
+
         let schedule = [];
 
         function findWithAttr(array, attr, value) {
-            for(var i = 0; i < array.length; i += 1) {
-                if(array[i][attr] === value) {
+            for (var i = 0; i < array.length; i += 1) {
+                if (array[i][attr] === value) {
                     return i;
                 }
             }
@@ -53,7 +55,7 @@ module.exports = (group, option) => {
         }
 
         needle('get', `${URL}`)
-            .then( function (res) {
+            .then(function (res) {
                 let currentWeek;
                 let nextDayWeek;
                 let newURL;
@@ -64,16 +66,16 @@ module.exports = (group, option) => {
                     let weekDatesFirst = weekDates[0].split('.');
                     let weekDatesLast = weekDates[1].split('.');
 
-                    if( day >= weekDatesFirst[0] && day <= weekDatesLast[0] && month >= weekDatesFirst[1] && month <= weekDatesLast[1] ) {
-                        currentWeek = i+1;
+                    if (day >= weekDatesFirst[0] && day <= weekDatesLast[0] && month >= weekDatesFirst[1] && month <= weekDatesLast[1]) {
+                        currentWeek = i + 1;
                     }
-                    if( nDay >= weekDatesFirst[0] && nDay+1 <= weekDatesLast[0] && nMonth >= weekDatesFirst[1] && nMonth <= weekDatesLast[1] ) {
-                        nextDayWeek = i+1;
+                    if (nDay >= weekDatesFirst[0] && nDay + 1 <= weekDatesLast[0] && nMonth >= weekDatesFirst[1] && nMonth <= weekDatesLast[1]) {
+                        nextDayWeek = i + 1;
                     }
-    
+
                 });
                 //console.log(currentWeek); // текущая неделя
-                console.log(nextDayWeek); // 
+                //console.log(nextDayWeek); // 
                 if (option == 'today') {
                     return `${URL}&week=${currentWeek}`;
                 }
@@ -89,16 +91,16 @@ module.exports = (group, option) => {
                     newURL = `${URL}&week=${currentWeek+1}`;
                     return newURL;
                 }
-               
+
             })
-            .then( function(newURL){
+            .then(function (newURL) {
                 //console.log(newURL);
                 let $;
-                return needle('get',newURL)
-                .then(function(res) {
-                    $ = cheerio.load(res.body);
-                    return $
-                })
+                return needle('get', newURL)
+                    .then(function (res) {
+                        $ = cheerio.load(res.body);
+                        return $
+                    })
             })
             .then(function ($) {
                 $('.sc-container').each((i, elem) => {
@@ -114,35 +116,34 @@ module.exports = (group, option) => {
                         let title = $(elem).find('.sc-item-title .sc-title').text();
                         let lecturer = $(elem).find('.sc-item-title .sc-lecturer').text();
                         let location = $(elem).find('.sc-item-location').text();
-                        
-                        lessons.push({ 
-                            'time' : time,
-                            'type' : type,
-                            'title' : title,
-                            'lecturer' : lecturer,
-                            'location' : location  
+
+                        lessons.push({
+                            'time': time,
+                            'type': type,
+                            'title': title,
+                            'lecturer': lecturer,
+                            'location': location
                         });
                     })
 
                     schedule.push({
-                        'date': ''+d,
+                        'date': '' + d,
                         'dayOfWeek': dayOfWeek,
                         'lessons': lessons
                     })
-                    
+
                 });
-                if(option == 'today'){
+                if (option == 'today') {
                     let inx = findWithAttr(schedule, 'date', currentDate);
                     resolve(schedule[inx]);
                 }
-                if(option == 'tomorrow'){
+                if (option == 'tomorrow') {
                     let inx = findWithAttr(schedule, 'date', nextDate);
                     resolve(schedule[inx]);
-                }
-                else {
+                } else {
                     resolve(schedule);
                 }
-                console.log(findWithAttr(schedule, 'date', currentDate));
+                //console.log(findWithAttr(schedule, 'date', currentDate));
             });
     })
 

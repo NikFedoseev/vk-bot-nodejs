@@ -3,6 +3,7 @@ const express = require ('express');
 const bodyParser = require ('body-parser');
 const {PORT, CONFIRMATION} = require ('./config');
 const methods = require ('./methods');
+const database = require ('./database');
 
 const app = express ();
 app.use(bodyParser.urlencoded({extended: true}));
@@ -30,7 +31,15 @@ app.post('/', (req, res) => {
     }
 })
 
+database()
+  .then( info => {
+    console.log(`Connected to ${info.host}:${info.port}/${info.name}`);
+  })
+  .catch( err => {
+    console.log(`Unable to connect to database ${err}`);
+  })
+
+
 app.listen(PORT, () => {
   console.log(`Сервер: порт ${PORT} - старт!`, PORT);
 });
-//xyu
